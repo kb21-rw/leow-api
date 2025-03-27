@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { catchError, map } from 'rxjs';
+import { catchError, lastValueFrom, map } from 'rxjs';
 @Injectable()
 export class WhatsappService {
   private readonly httpService = new HttpService();
@@ -41,6 +41,8 @@ export class WhatsappService {
             );
           }),
         );
+      const messageSendingStatus = await lastValueFrom(response);
+      this.logger.log('Message Sent. Status:', messageSendingStatus);
     } catch (error) {
       this.logger.error(error);
       return 'Axle broke. Abort Mission';
