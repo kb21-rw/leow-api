@@ -18,7 +18,7 @@ export class WhatsappController {
   constructor(private readonly whatsAppService: WhatsappService) {}
 
   @Get('webhook')
-  whatsappVerificationChallenge(@Req() request: Request): string {
+  verificationChallenge(@Req() request: Request): string {
     const mode = request.query['hub.mode'] as string;
     const challenge = request.query['hub.challenge'] as string;
     const token = request.query['hub.verify_token'] as string;
@@ -38,7 +38,7 @@ export class WhatsappController {
 
   @Post('webhook')
   @HttpCode(200)
-  async handleIncomingWhatsappMessage(
+  async handleIncomingMessage(
     @Body() request: WhatsAppWebhookPayload,
   ): Promise<void> {
     const { messages } = request?.entry?.[0]?.changes?.[0]?.value ?? {};
@@ -58,7 +58,7 @@ export class WhatsappController {
           return;
         }
 
-        await this.whatsAppService.sendWhatsAppMessage(messageSender);
+        await this.whatsAppService.sendMessage(messageSender);
         break;
       }
       default:

@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import { WhatsAppMessageResponse } from './types';
+import { WHATSAPP_CLOUD_API_MESSAGES_URL } from './constants/cloudApiUrl';
 
 interface WhatsAppApiResponse {
   messages: Array<{
@@ -15,8 +16,8 @@ export class WhatsappService {
   private readonly httpService = new HttpService();
   private readonly logger = new Logger(WhatsappService.name);
 
-  async sendWhatsAppMessage(messageSender: string): Promise<string> {
-    const url = `https://graph.facebook.com/${process.env.WHATSAPP_CLOUD_API_VERSION}/${process.env.WHATSAPP_CLOUD_API_PHONE_NUMBER_ID}/messages`;
+  async sendMessage(messageSender: string): Promise<string> {
+    const url = WHATSAPP_CLOUD_API_MESSAGES_URL;
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ export class WhatsappService {
       return 'Message sent successfully';
     } catch (error) {
       this.logger.error(error);
-      return 'Axle broke. Abort Mission';
+      return 'There was an error sending the message';
     }
   }
 }
