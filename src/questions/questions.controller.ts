@@ -7,12 +7,12 @@ export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @Get()
-  findAll(): Question[] {
-    return this.questionsService.findAll();
+  getAllQuestions(): Question[] {
+    return this.questionsService.getAllQuestions();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Question | undefined {
-    return this.questionsService.findOne(+id);
+  getQuestionById(@Param('id') id: string): Question | undefined {
+    return this.questionsService.getQuestionById(+id);
   }
 }
