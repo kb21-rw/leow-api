@@ -61,7 +61,7 @@ export class WhatsappService {
     question: string,
     options: string[],
   ): Promise<string> {
-    const url = process.env.WHATSAPP_CLOUD_API_MESSAGES_URL!;
+    const url = WHATSAPP_CLOUD_API_MESSAGES_URL;
     const config = {
       headers: {
         'Content-Type': 'application/json',
