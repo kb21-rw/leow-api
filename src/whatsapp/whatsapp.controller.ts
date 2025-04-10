@@ -50,6 +50,12 @@ export class WhatsappController {
 
     this.logger.log(`Received message ${messageId} from ${messageSender}`);
 
+    const testQuestion = {
+      question: '"Icyayi" ni ikihe muri ibi:',
+      options: ['Milk', 'Tea', 'Bread'],
+      answer: 'Milk',
+    };
+
     switch (message.type) {
       case 'text': {
         const text = message.text?.body;
@@ -58,7 +64,28 @@ export class WhatsappController {
           return;
         }
 
-        await this.whatsAppService.sendMessage(messageSender);
+        await this.whatsAppService.sendQuestionWithOptions(
+          messageSender,
+          testQuestion.question,
+          testQuestion.options,
+        );
+        break;
+      }
+
+      case 'interactive': {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+        const buttonTitle = message.interactive?.button_reply?.title;
+        let responseMessage = '';
+        if (buttonTitle === testQuestion.answer) {
+          responseMessage = 'Correct!';
+        } else {
+          responseMessage = 'Incorrect!';
+        }
+
+        await this.whatsAppService.sendTextMessage(
+          messageSender,
+          responseMessage,
+        );
         break;
       }
       default:
