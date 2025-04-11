@@ -17,7 +17,11 @@ export class QuestionsService {
     return this.questions;
   }
 
-  getQuestionById(id: number): Question | undefined {
-    return this.questions.find((question) => question._id === id);
+  getQuestionById(id: number): Question {
+    const question = this.questions.find((question) => question._id === id);
+    if (!question) {
+      throw new Error(`Question with ID ${id} not found`);
+    }
+    return question;
   }
 }

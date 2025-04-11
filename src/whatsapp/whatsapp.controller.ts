@@ -10,12 +10,22 @@ import {
 import { Request } from 'express';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppWebhookPayload } from './types';
+import { QuestionsService } from 'src/questions/questions.service';
 
 @Controller('whatsapp')
 export class WhatsappController {
   private readonly logger = new Logger(WhatsappController.name);
+  private userSessions = new Map<
+    string,
+    {
+      currentQuestionId: number;
+    }
+  >();
 
-  constructor(private readonly whatsAppService: WhatsappService) {}
+  constructor(
+    private readonly whatsAppService: WhatsappService,
+    private readonly questionsService: QuestionsService,
+  ) {}
 
   @Get('webhook')
   verificationChallenge(@Req() request: Request): string {
@@ -50,11 +60,12 @@ export class WhatsappController {
 
     this.logger.log(`Received message ${messageId} from ${messageSender}`);
 
-    const testQuestion = {
-      question: '"Icyayi" ni ikihe muri ibi:',
-      options: ['Milk', 'Tea', 'Bread'],
-      answer: 'Milk',
-    };
+    if (!this.userSessions.has(messageSender)) {
+      this.userSessions.set(messageSender, {
+        currentQuestionId: 1,
+      });
+    }
+    const userSession = this.userSessions.get(messageSender)!;
 
     switch (message.type) {
       case 'text': {
@@ -64,32 +75,70 @@ export class WhatsappController {
           return;
         }
 
-        await this.whatsAppService.sendQuestionWithOptions(
-          messageSender,
-          testQuestion.question,
-          testQuestion.options,
-        );
+        if (userSession.currentQuestionId === 1) {
+          await this.whatsAppService.sendTextMessage(
+            messageSender,
+            '*Muraho!* 👋\nIkaze kuri *Learn English*! Hano uziga Icyongereza mu buryo bworoshye kandi bushimishije.',
+          );
+        } else {
+          await this.sendNextQuestion(messageSender);
+        }
         break;
       }
 
       case 'interactive': {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const buttonTitle = message.interactive?.button_reply?.title;
-        let responseMessage = '';
-        if (buttonTitle === testQuestion.answer) {
-          responseMessage = 'Correct!';
-        } else {
-          responseMessage = 'Incorrect!';
-        }
 
-        await this.whatsAppService.sendTextMessage(
-          messageSender,
-          responseMessage,
+        const currentQuestion = this.questionsService.getQuestionById(
+          userSession.currentQuestionId,
         );
+
+        let responseMessage = '';
+
+        if (currentQuestion) {
+          if (buttonTitle === currentQuestion.answer) {
+            responseMessage = 'Correct!';
+          } else {
+            responseMessage = 'Incorrect!';
+          }
+
+          await this.whatsAppService.sendTextMessage(
+            messageSender,
+            responseMessage,
+          );
+
+          setTimeout(() => {
+            this.sendNextQuestion(messageSender).catch((error) =>
+              this.logger.error('Error sending next question', error),
+            );
+          }, 1000);
+        }
         break;
       }
       default:
         this.logger.warn(`Unhandled message type: ${message.type}`);
+    }
+  }
+
+  private async sendNextQuestion(messageSender: string): Promise<void> {
+    const userSession = this.userSessions.get(messageSender)!;
+
+    const nextQuestion = this.questionsService.getQuestionById(
+      userSession.currentQuestionId,
+    );
+
+    // Send question with options
+    if (nextQuestion.options && nextQuestion.options.length > 0) {
+      await this.whatsAppService.sendQuestionWithOptions(
+        messageSender,
+        nextQuestion.question,
+        nextQuestion.options,
+      );
+
+      userSession.currentQuestionId++;
+    } else {
+      //Todo: Send other question types
     }
   }
 }
