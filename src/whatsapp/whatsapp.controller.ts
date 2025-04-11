@@ -10,7 +10,7 @@ import {
 import { Request } from 'express';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppWebhookPayload } from './types';
-import { QuestionsService } from 'src/questions/questions.service';
+import { QuestionsService } from '../questions/questions.service';
 
 @Controller('whatsapp')
 export class WhatsappController {
