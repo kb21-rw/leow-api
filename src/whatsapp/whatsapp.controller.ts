@@ -80,9 +80,10 @@ export class WhatsappController {
             messageSender,
             '*Muraho!* 👋\nIkaze kuri *Learn English*! Hano uziga Icyongereza mu buryo bworoshye kandi bushimishije.',
           );
-        } else {
-          await this.sendNextQuestion(messageSender);
         }
+
+        await this.sendNextQuestion(messageSender);
+
         break;
       }
 
