@@ -5,7 +5,7 @@ import { MessageService } from './message.service';
 import { QuestionsModule } from '../questions/questions.module';
 
 @Module({
-  imports: [HttpModule, forwardRef(() => QuestionsModule)], // Use forwardRef here
+  imports: [HttpModule, forwardRef(() => QuestionsModule)],
   controllers: [MessageController],
   providers: [MessageService],
   exports: [MessageService],
