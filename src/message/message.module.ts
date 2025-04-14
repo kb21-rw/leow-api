@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { MessageController } from './message.controller';
 import { MessageService } from './message.service';
 import { QuestionsModule } from '../questions/questions.module';
 
 @Module({
-  imports: [HttpModule, QuestionsModule],
+  imports: [HttpModule, forwardRef(() => QuestionsModule)], // Use forwardRef here
   controllers: [MessageController],
   providers: [MessageService],
+  exports: [MessageService],
 })
 export class MessageModule {}
