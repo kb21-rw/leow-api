@@ -37,6 +37,9 @@ export class QuestionsService {
   }
 
   async getNext(messageSender: string): Promise<void> {
+    if (!this.userSession.has(messageSender)) {
+      this.userSession.set(messageSender, { currentQuestionId: 1 });
+    }
     const userSession = this.userSession.get(messageSender)!;
 
     const nextQuestion = this.findById(userSession.currentQuestionId);
