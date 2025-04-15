@@ -21,7 +21,7 @@ export class MessageService {
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.WHATSAPP_CLOUD_API_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${process.env.Message_CLOUD_API_ACCESS_TOKEN}`,
       },
     };
 

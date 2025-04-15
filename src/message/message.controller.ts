@@ -28,7 +28,7 @@ export class MessageController {
     const token = request.query['hub.verify_token'] as string;
 
     const verificationToken =
-      process.env.WHATSAPP_CLOUD_API_WEBHOOK_VERIFICATION_TOKEN;
+      process.env.Message_CLOUD_API_WEBHOOK_VERIFICATION_TOKEN;
 
     if (!mode && !token) {
       return 'Error verifying token';
