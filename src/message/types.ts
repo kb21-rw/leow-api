@@ -25,3 +25,13 @@ export interface MessageResponse {
     body: string;
   };
 }
+
+export interface InteractiveMessageResponse {
+  [x: string]: any;
+  from: string;
+  id: string;
+  type: string;
+  text?: {
+    body: string;
+  };
+}
