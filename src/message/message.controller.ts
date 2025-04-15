@@ -42,7 +42,7 @@ export class MessageController {
 
   @Post('webhook')
   @HttpCode(200)
-  async handleIncoming(@Body() request: WebhookPayload): Promise<void> {
+  async incomingText(@Body() request: WebhookPayload): Promise<void> {
     const { messages } = request?.entry?.[0]?.changes?.[0]?.value ?? {};
     if (!messages) return;
 
