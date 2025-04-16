@@ -107,8 +107,16 @@ export class MessageService {
     const userSession = this.userService.getUserSession(recipient);
     const totalQuestions = this.questionsService.findAll().length;
 
-    if (this.userService.hasCompletedAllQuestions(userSession.currentQuestionId, totalQuestions)) {
-      await this.sendText(recipient, 'Congratulations! 🎉 You have completed the lesson.');
+    if (
+      this.userService.hasCompletedAllQuestions(
+        userSession.currentQuestionId,
+        totalQuestions,
+      )
+    ) {
+      await this.sendText(
+        recipient,
+        'Congratulations! 🎉 You have completed the lesson.',
+      );
       return Promise.resolve('Lesson completed');
     }
 
