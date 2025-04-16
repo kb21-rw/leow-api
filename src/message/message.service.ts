@@ -6,6 +6,7 @@ import {
   WHATSAPP_CLOUD_API_ACCESS_TOKEN,
   WHATSAPP_CLOUD_API_MESSAGES_URL,
 } from './constants/cloud-api';
+import { QuestionsService } from '../questions/questions.service';
 
 interface ApiResponse {
   messages: Array<{
@@ -18,10 +19,12 @@ interface ApiResponse {
 export class MessageService {
   private readonly httpService = new HttpService();
   private readonly logger = new Logger(MessageService.name);
+  private readonly questionsService = new QuestionsService();
   private userSessions = new Map<
     string,
     {
       currentQuestionId: number;
+      completed: boolean;
     }
   >();
 
@@ -29,6 +32,7 @@ export class MessageService {
     if (!this.userSessions.has(messageSender)) {
       this.userSessions.set(messageSender, {
         currentQuestionId: 1,
+        completed: false,
       });
     }
     return this.userSessions.get(messageSender);
@@ -37,6 +41,13 @@ export class MessageService {
   incrementCurrentQuestion(messageSender: string) {
     const userSession = this.getUserSession(messageSender);
     if (userSession) {
+      if (
+        this.questionsService.hasCompletedAllQuestions(
+          userSession.currentQuestionId,
+        )
+      ) {
+        userSession.completed = true;
+      }
       userSession.currentQuestionId++;
     }
   }
@@ -135,10 +146,16 @@ export class MessageService {
     return this.sendRequest(data);
   }
 
-  sendNext(
+  async sendNext(
     recipient: string,
     message: { question: string; options: string[] },
   ): Promise<string> {
+    const userSession = this.getUserSession(recipient);
+
+    if (userSession?.completed) {
+      await this.sendText(recipient, 'Isomo ryarangiye 🎉.');
+      return Promise.resolve('Lesson completed');
+    }
     // Send question with options
     if (message.options && message.options.length > 0) {
       return this.sendWithOptions(recipient, message.question, message.options);
