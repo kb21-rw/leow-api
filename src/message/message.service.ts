@@ -104,12 +104,12 @@ export class MessageService {
     recipient: string,
     message: { question: string; options: string[] },
   ): Promise<string> {
-    const userSession = this.userService.getUserSession(recipient);
+    const userSession = this.userService.getSession(recipient);
     const totalQuestions = this.questionsService.findAll().length;
 
     if (
       this.userService.hasCompletedAllQuestions(
-        userSession.currentQuestionId,
+        userSession?.currentQuestionId ?? 1,
         totalQuestions,
       )
     ) {
@@ -143,7 +143,7 @@ export class MessageService {
       return;
     }
 
-    const userSession = this.userService.getUserSession(messageSender);
+    const userSession = this.userService.getSession(messageSender);
 
     if (userSession?.currentQuestionId === 1) {
       await this.sendText(
