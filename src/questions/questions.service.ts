@@ -31,4 +31,9 @@ export class QuestionsService {
 
     return `Yiii! 😞 Igisubizo cyawe Ntabwo ari cyo.\n\nIgisubizo ni: ${correctAnswer}`;
   }
+
+  hasCompletedAllQuestions(currentQuestionId: number): boolean {
+    const totalQuestions = this.findAll().length;
+    return currentQuestionId > totalQuestions;
+  }
 }
