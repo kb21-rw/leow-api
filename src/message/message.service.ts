@@ -149,6 +149,7 @@ export class MessageService {
 
   async sendFeedback(recipient: string, feedback: string): Promise<void> {
     await this.sendText(recipient, feedback);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     this.incrementCurrentQuestion(recipient)!;
   }
 }
