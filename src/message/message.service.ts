@@ -1,8 +1,11 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map } from 'rxjs';
-import { MessageResponse } from './types';
-import { WHATSAPP_CLOUD_API_MESSAGES_URL } from './constants/cloudApiUrl';
+import { InteractiveMessageResponse, MessageResponse } from './types';
+import {
+  WHATSAPP_CLOUD_API_ACCESS_TOKEN,
+  WHATSAPP_CLOUD_API_MESSAGES_URL,
+} from './constants/cloud-api';
 
 interface ApiResponse {
   messages: Array<{
@@ -15,13 +18,55 @@ interface ApiResponse {
 export class MessageService {
   private readonly httpService = new HttpService();
   private readonly logger = new Logger(MessageService.name);
+  private userSessions = new Map<
+    string,
+    {
+      currentQuestionId: number;
+    }
+  >();
 
-  private async sendRequest(data: any): Promise<string> {
+  getUserSession(messageSender: string) {
+    if (!this.userSessions.has(messageSender)) {
+      this.userSessions.set(messageSender, {
+        currentQuestionId: 1,
+      });
+    }
+    return this.userSessions.get(messageSender);
+  }
+
+  incrementCurrentQuestion(messageSender: string) {
+    const userSession = this.getUserSession(messageSender);
+    if (userSession) {
+      userSession.currentQuestionId++;
+    }
+  }
+
+  async parseText(
+    messageSender: string,
+    message: InteractiveMessageResponse,
+  ): Promise<void> {
+    const text = message.text?.body;
+    if (!text) {
+      this.logger.warn('Received text message without body');
+      return;
+    }
+
+    const userSession = this.getUserSession(messageSender);
+
+    if (userSession?.currentQuestionId === 1) {
+      await this.sendText(
+        messageSender,
+        '*Muraho!* 👋\nIkaze kuri *Learn English*! Hano uziga Icyongereza mu buryo bworoshye kandi bushimishije.',
+      );
+    }
+  }
+
+  async sendRequest(data: any): Promise<string> {
     const url = WHATSAPP_CLOUD_API_MESSAGES_URL;
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.Message_CLOUD_API_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`,
       },
     };
 
@@ -88,5 +133,22 @@ export class MessageService {
     };
 
     return this.sendRequest(data);
+  }
+
+  sendNext(
+    recipient: string,
+    message: { question: string; options: string[] },
+  ): Promise<string> {
+    // Send question with options
+    if (message.options && message.options.length > 0) {
+      return this.sendWithOptions(recipient, message.question, message.options);
+    }
+    // Handle other cases or return a default value
+    return Promise.resolve('Loading questions..');
+  }
+
+  async sendFeedback(recipient: string, feedback: string): Promise<void> {
+    await this.sendText(recipient, feedback);
+    this.incrementCurrentQuestion(recipient)!;
   }
 }

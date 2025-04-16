@@ -11,6 +11,7 @@ import { Request } from 'express';
 import { MessageService } from './message.service';
 import { WebhookPayload } from './types';
 import { QuestionsService } from '../questions/questions.service';
+import { WHATSAPP_CLOUD_API_ACCESS_TOKEN } from './constants/cloud-api';
 
 @Controller('message')
 export class MessageController {
@@ -27,14 +28,11 @@ export class MessageController {
     const challenge = request.query['hub.challenge'] as string;
     const token = request.query['hub.verify_token'] as string;
 
-    const verificationToken =
-      process.env.Message_CLOUD_API_WEBHOOK_VERIFICATION_TOKEN;
-
     if (!mode && !token) {
       return 'Error verifying token';
     }
 
-    if (mode === 'subscribe' && token === verificationToken) {
+    if (mode === 'subscribe' && token === WHATSAPP_CLOUD_API_ACCESS_TOKEN) {
       return challenge;
     }
     return 'Verification failed';
@@ -42,7 +40,7 @@ export class MessageController {
 
   @Post('webhook')
   @HttpCode(200)
-  async incomingText(@Body() request: WebhookPayload): Promise<void> {
+  async incomingText(@Body() request: WebhookPayload): Promise<void | string> {
     const { messages } = request?.entry?.[0]?.changes?.[0]?.value ?? {};
     if (!messages) return;
 
@@ -54,53 +52,31 @@ export class MessageController {
 
     switch (message.type) {
       case 'text': {
-        const text = message.text?.body;
-        if (!text) {
-          this.logger.warn('Received text message without body');
-          return;
-        }
-
-        // Send welcome message for first-time users
-        await this.messageService.sendText(
-          messageSender,
-          '*Muraho!* 👋\nIkaze kuri *Learn English*! Hano uziga Icyongereza mu buryo bworoshye kandi bushimishije.',
-        );
-
-        await this.questionsService.getNext(messageSender);
+        await this.messageService.parseText(messageSender, message);
         break;
       }
 
       case 'interactive': {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        const buttonTitle = message.interactive?.button_reply?.title;
-
-        const currentQuestion = this.questionsService.findById(
-          this.questionsService.getCurrentQuestionId(messageSender),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const buttonTitle = message.interactive?.button_reply?.title as string;
+        const { currentQuestionId } =
+          this.messageService.getUserSession(messageSender)!;
+        const responseMessage = this.questionsService.checkAnswer(
+          currentQuestionId,
+          buttonTitle,
         );
 
-        let responseMessage = '';
-
-        if (currentQuestion) {
-          if (buttonTitle === currentQuestion.answer) {
-            responseMessage = 'Correct!';
-          } else {
-            responseMessage = 'Incorrect!';
-          }
-
-          await this.messageService.sendText(messageSender, responseMessage);
-
-          setTimeout(() => {
-            this.questionsService
-              .getNext(messageSender)
-              .catch((error) =>
-                this.logger.error('Error sending next question', error),
-              );
-          }, 1000);
-        }
+        await this.messageService.sendFeedback(messageSender, responseMessage);
         break;
       }
       default:
         this.logger.warn(`Unhandled message type: ${message.type}`);
     }
+
+    const { currentQuestionId } =
+      this.messageService.getUserSession(messageSender)!;
+    const nextQuestion = this.questionsService.findById(currentQuestionId);
+
+    return this.messageService.sendNext(messageSender, nextQuestion);
   }
 }
