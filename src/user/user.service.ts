@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
-  private userSessions = new Map<
+  private sessions = new Map<
     string,
     {
       currentQuestionId: number;
@@ -10,20 +10,20 @@ export class UserService {
     }
   >();
 
-  getUserSession(messageSender: string) {
-    if (!this.userSessions.has(messageSender)) {
-      this.userSessions.set(messageSender, {
+  getSession(messageSender: string) {
+    if (!this.sessions.has(messageSender)) {
+      this.sessions.set(messageSender, {
         currentQuestionId: 1,
         completed: false,
       });
     }
-    return this.userSessions.get(messageSender);
+    return this.sessions.get(messageSender);
   }
 
   incrementCurrentQuestion(messageSender: string) {
-    const userSession = this.getUserSession(messageSender);
-    if (userSession) {
-      userSession.currentQuestionId++;
+    const session = this.getSession(messageSender);
+    if (session) {
+      session.currentQuestionId++;
     }
   }
 
