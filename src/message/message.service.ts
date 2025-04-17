@@ -6,6 +6,8 @@ import {
   WHATSAPP_CLOUD_API_ACCESS_TOKEN,
   WHATSAPP_CLOUD_API_MESSAGES_URL,
 } from './constants/cloud-api';
+import { QuestionsService } from '../questions/questions.service';
+import { UserService } from '../user/user.service';
 
 interface ApiResponse {
   messages: Array<{
@@ -16,50 +18,13 @@ interface ApiResponse {
 
 @Injectable()
 export class MessageService {
+  constructor(
+    private readonly userService: UserService,
+    private readonly questionsService: QuestionsService,
+  ) {}
+
   private readonly httpService = new HttpService();
   private readonly logger = new Logger(MessageService.name);
-  private userSessions = new Map<
-    string,
-    {
-      currentQuestionId: number;
-    }
-  >();
-
-  getUserSession(messageSender: string) {
-    if (!this.userSessions.has(messageSender)) {
-      this.userSessions.set(messageSender, {
-        currentQuestionId: 1,
-      });
-    }
-    return this.userSessions.get(messageSender);
-  }
-
-  incrementCurrentQuestion(messageSender: string) {
-    const userSession = this.getUserSession(messageSender);
-    if (userSession) {
-      userSession.currentQuestionId++;
-    }
-  }
-
-  async parseText(
-    messageSender: string,
-    message: InteractiveMessageResponse,
-  ): Promise<void> {
-    const text = message.text?.body;
-    if (!text) {
-      this.logger.warn('Received text message without body');
-      return;
-    }
-
-    const userSession = this.getUserSession(messageSender);
-
-    if (userSession?.currentQuestionId === 1) {
-      await this.sendText(
-        messageSender,
-        '*Muraho!* 👋\nIkaze kuri *Learn English*! Hano uziga Icyongereza mu buryo bworoshye kandi bushimishije.',
-      );
-    }
-  }
 
   async sendRequest(data: any): Promise<string> {
     const url = WHATSAPP_CLOUD_API_MESSAGES_URL;
@@ -154,16 +119,31 @@ export class MessageService {
     return this.sendRequest(data);
   }
 
-  sendNext(
+  async sendNext(
     recipient: string,
     message: { question: string; options: string[] },
   ): Promise<string> {
-    // Send question with options
+    const userSession = this.userService.getSession(recipient);
+    const totalQuestions = this.questionsService.findAll().length;
+
+    if (
+      this.userService.hasCompletedAllQuestions(
+        userSession?.currentQuestionId ?? 1,
+        totalQuestions,
+      )
+    ) {
+      await this.sendText(
+        recipient,
+        'Congratulations! 🎉 You have completed the lesson.',
+      );
+      return Promise.resolve('Lesson completed');
+    }
+
     if (message.options && message.options.length > 0) {
       return this.sendWithOptions(recipient, message.question, message.options);
     }
-    // Handle other cases or return a default value
-    return Promise.resolve('Loading questions..');
+
+    return Promise.resolve('Loading questions...');
   }
 
   async sendFeedback(
@@ -171,6 +151,27 @@ export class MessageService {
     feedback: { message: string; gif: string },
   ): Promise<void> {
     await this.sendMediaAndText(recipient, feedback.gif, feedback.message);
-    this.incrementCurrentQuestion(recipient)!;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    this.userService.incrementCurrentQuestion(recipient);
+  }
+
+  async parseText(
+    messageSender: string,
+    message: InteractiveMessageResponse,
+  ): Promise<void> {
+    const text = message.text?.body;
+    if (!text) {
+      this.logger.warn('Received text message without body');
+      return;
+    }
+
+    const userSession = this.userService.getSession(messageSender);
+
+    if (userSession?.currentQuestionId === 1) {
+      await this.sendText(
+        messageSender,
+        '*Muraho!* 👋\nIkaze kuri *Learn English*! Hano uziga Icyongereza mu buryo bworoshye kandi bushimishije.',
+      );
+    }
   }
 }
