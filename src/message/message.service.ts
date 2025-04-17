@@ -68,6 +68,25 @@ export class MessageService {
     return this.sendRequest(data);
   }
 
+  async sendMediaAndText(
+    recipient: string,
+    mediaUrl: string,
+    text: string,
+  ): Promise<string> {
+    const mediaData = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: recipient,
+      type: 'image',
+      image: {
+        link: mediaUrl,
+        caption: text,
+      },
+    };
+
+    return this.sendRequest(mediaData);
+  }
+
   async sendWithOptions(
     recipient: string,
     question: string,
@@ -127,8 +146,11 @@ export class MessageService {
     return Promise.resolve('Loading questions...');
   }
 
-  async sendFeedback(recipient: string, feedback: string): Promise<void> {
-    await this.sendText(recipient, feedback);
+  async sendFeedback(
+    recipient: string,
+    feedback: { message: string; gif: string },
+  ): Promise<void> {
+    await this.sendMediaAndText(recipient, feedback.gif, feedback.message);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     this.userService.incrementCurrentQuestion(recipient);
   }

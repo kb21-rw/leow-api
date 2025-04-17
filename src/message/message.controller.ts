@@ -63,12 +63,12 @@ export class MessageController {
         const buttonTitle = message.interactive?.button_reply?.title as string;
         const { currentQuestionId } =
           this.userService.getSession(messageSender)!;
-        const responseMessage = this.questionsService.checkAnswer(
+        const feedback = this.questionsService.checkAnswer(
           currentQuestionId,
           buttonTitle,
         );
 
-        await this.messageService.sendFeedback(messageSender, responseMessage);
+        await this.messageService.sendFeedback(messageSender, feedback);
         break;
       }
       default:
