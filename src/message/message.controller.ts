@@ -11,6 +11,7 @@ import { Request } from 'express';
 import { MessageService } from './message.service';
 import { WebhookPayload } from './types';
 import { QuestionsService } from '../questions/questions.service';
+import { UserService } from '../user/user.service';
 import { WHATSAPP_CLOUD_API_ACCESS_TOKEN } from './constants/cloud-api';
 
 @Controller('message')
@@ -20,6 +21,7 @@ export class MessageController {
   constructor(
     private readonly messageService: MessageService,
     private readonly questionsService: QuestionsService,
+    private readonly userService: UserService,
   ) {}
 
   @Get('webhook')
@@ -60,7 +62,7 @@ export class MessageController {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const buttonTitle = message.interactive?.button_reply?.title as string;
         const { currentQuestionId } =
-          this.messageService.getUserSession(messageSender)!;
+          this.userService.getSession(messageSender)!;
         const feedback = this.questionsService.checkAnswer(
           currentQuestionId,
           buttonTitle,
@@ -73,8 +75,7 @@ export class MessageController {
         this.logger.warn(`Unhandled message type: ${message.type}`);
     }
 
-    const { currentQuestionId } =
-      this.messageService.getUserSession(messageSender)!;
+    const { currentQuestionId } = this.userService.getSession(messageSender)!;
     const nextQuestion = this.questionsService.findById(currentQuestionId);
 
     return this.messageService.sendNext(messageSender, nextQuestion);
