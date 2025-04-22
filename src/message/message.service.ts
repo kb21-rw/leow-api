@@ -69,11 +69,7 @@ export class MessageService {
     return this.sendRequest(data);
   }
 
-  async sendMediaAndText(
-    recipient: string,
-    mediaUrl: string,
-    text: string,
-  ): Promise<string> {
+  async sendMedia(recipient: string, mediaUrl: string): Promise<string> {
     const mediaData = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
@@ -81,7 +77,6 @@ export class MessageService {
       type: 'sticker',
       sticker: {
         link: mediaUrl,
-        caption: text,
       },
     };
 
@@ -167,7 +162,8 @@ export class MessageService {
     recipient: string,
     feedback: { message: string; gif: string },
   ): Promise<void> {
-    await this.sendMediaAndText(recipient, feedback.gif, feedback.message);
+    await this.sendText(recipient, feedback.message);
+    await this.sendMedia(recipient, feedback.gif);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     this.userService.incrementCurrentQuestion(recipient);
   }
