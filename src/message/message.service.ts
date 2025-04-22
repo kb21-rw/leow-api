@@ -81,13 +81,9 @@ export class MessageService {
       type: 'image',
       image: {
         link: mediaUrl,
-        // caption: text,
+        caption: text,
       },
     };
-
-    this.logger.log(`Sending image to ${recipient} with URL: ${mediaUrl}`);
-    await this.sendRequest(mediaData);
-    await this.sendText(recipient, text);
 
     return this.sendRequest(mediaData);
   }
