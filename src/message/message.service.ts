@@ -74,9 +74,9 @@ export class MessageService {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
       to: recipient,
-      type: 'sticker',
-      sticker: {
-        link: mediaUrl,
+      type: 'video',
+      video: {
+        id: mediaUrl,
       },
     };
 
@@ -160,10 +160,10 @@ export class MessageService {
 
   async sendFeedback(
     recipient: string,
-    feedback: { message: string; gif: string },
+    feedback: { message: string; media: string },
   ): Promise<void> {
     await this.sendText(recipient, feedback.message);
-    await this.sendMedia(recipient, feedback.gif);
+    await this.sendMedia(recipient, feedback.media);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     this.userService.incrementCurrentQuestion(recipient);
   }

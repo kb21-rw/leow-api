@@ -25,18 +25,18 @@ export class QuestionsService {
   checkAnswer(
     questionId: number,
     answer: string,
-  ): { message: string; gif: string } {
+  ): { message: string; media: string } {
     const question = this.findById(questionId);
     const correctAnswer = question.answer;
 
     const feedback = {
       correct: {
         message: 'Byiza cyane! 🎉 Igisubizo cyawe ni cyo!',
-        gif: 'https://i.giphy.com/NB5KrYf9unQK42pp8N.webp',
+        media: 'https://leow.netlify.app/Great%20Job%20Gif.mp4',
       },
       incorrect: {
         message: `Yiii! 😞 Igisubizo cyawe Ntabwo ari cyo.\n\nIgisubizo ni: ${correctAnswer}`,
-        gif: 'https://i.giphy.com/l2SpNqwi0lRY5M5sk.webp',
+        media: 'https://leow.netlify.app/That_s_not_right.mp4',
       },
     };
 
