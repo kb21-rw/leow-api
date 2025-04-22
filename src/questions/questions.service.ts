@@ -32,11 +32,11 @@ export class QuestionsService {
     const feedback = {
       correct: {
         message: 'Byiza cyane! 🎉 Igisubizo cyawe ni cyo!',
-        gif: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHRyd2hoaGpvdmwwdmxqeDl1MTg3MGVqczFmaTluOW1xdm16dThkeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2xRu4Clh3DJhm/giphy.gif',
+        gif: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTRuY3c4OHhkY2Z3OHVkanRoanJzaHRrejdiczdzbDV2d3EyYjBvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2xRu4Clh3DJhm/giphy.gif',
       },
       incorrect: {
         message: `Yiii! 😞 Igisubizo cyawe Ntabwo ari cyo.\n\nIgisubizo ni: ${correctAnswer}`,
-        gif: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWw0YWVudDlrMWhuNHRscjRxNnh1MDVxbTZzdWhoNGppcDR1bTZpYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2SpNqwi0lRY5M5sk/giphy.gif',
+        gif: 'https://i.giphy.com/l2SpNqwi0lRY5M5sk.webp',
       },
     };
 
