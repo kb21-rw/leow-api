@@ -78,9 +78,9 @@ export class MessageService {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
       to: recipient,
-      type: 'video',
-      video: {
-        id: mediaUrl,
+      type: 'sticker',
+      sticker: {
+        link: mediaUrl,
         caption: text,
       },
     };
