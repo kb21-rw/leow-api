@@ -8,7 +8,7 @@ import {
 } from './constants/cloud-api';
 import { QuestionsService } from '../questions/questions.service';
 import { UserService } from '../user/user.service';
-import { Question } from 'src/questions/interfaces/question.interface';
+import { Question } from '../questions/interfaces/question.interface';
 
 interface ApiResponse {
   messages: Array<{
