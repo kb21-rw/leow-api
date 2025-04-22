@@ -32,13 +32,11 @@ export class QuestionsService {
     const feedback = {
       correct: {
         message: 'Byiza cyane! 🎉 Igisubizo cyawe ni cyo!',
-        // gif: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTRuY3c4OHhkY2Z3OHVkanRoanJzaHRrejdiczdzbDV2d3EyYjBvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2xRu4Clh3DJhm/giphy.gif',
-        gif: 'https://logos.textgiraffe.com/logos/logo-name/Amazing-designstyle-amazing-m.png',
+        gif: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTRuY3c4OHhkY2Z3OHVkanRoanJzaHRrejdiczdzbDV2d3EyYjBvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2xRu4Clh3DJhm/giphy.gif',
       },
       incorrect: {
         message: `Yiii! 😞 Igisubizo cyawe Ntabwo ari cyo.\n\nIgisubizo ni: ${correctAnswer}`,
-        // gif: 'https://i.giphy.com/l2SpNqwi0lRY5M5sk.webp',
-        gif: 'https://img.freepik.com/free-psd/cross-mark-isolated_23-2151478803.jpg',
+        gif: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExenZkdDV1end6dW50ZDZyd3VpajY1MmVqZDI5Yzl0OXpwOXAxNno5aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0UBGevYKQRsvDDQgCR/giphy.gif',
       },
     };
 
