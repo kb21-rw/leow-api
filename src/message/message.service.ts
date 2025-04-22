@@ -76,7 +76,7 @@ export class MessageService {
       to: recipient,
       type: 'video',
       video: {
-        id: mediaUrl,
+        link: mediaUrl,
       },
     };
 
