@@ -55,6 +55,14 @@ export class MessageController {
     switch (message.type) {
       case 'text': {
         await this.messageService.parseText(messageSender, message);
+        const { currentQuestionId } =
+          this.userService.getSession(messageSender)!;
+        const feedback = this.questionsService.checkAnswer(
+          currentQuestionId,
+          message.text?.body ?? '',
+        );
+
+        await this.messageService.sendFeedback(messageSender, feedback);
         break;
       }
 
