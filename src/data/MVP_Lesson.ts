@@ -1,6 +1,9 @@
-import { Question } from '../questions/entities/question.entity';
+import {
+  Question,
+  QuestionType,
+} from 'src/questions/interfaces/question.interface';
 
-export const MVP_Lesson = [
+const MVP_Lesson: Question[] = [
   {
     _id: 1,
     text: 'Hitamo ubusobanuro bwa “Icyayi”',
@@ -72,5 +75,36 @@ export const MVP_Lesson = [
   {
     _id: 11,
     text: 'Uzuza iki kiganiro: \nUmuntu A: Do you want coffee? \nUmuntu B: Sure! ……………',
-  }
+    type: QuestionType.MultipleChoice,
+    options: ["I don't drink coffee", 'How about 3 PM?', "Let's Swim."],
+    answer: 'How about 3 PM?',
+  },
+  {
+    _id: 12,
+    text: 'Soma maze usubize: \n"Don\'t forget your umbrella; it\'s raining" \n *Uvuga arashaka:*',
+    type: QuestionType.MultipleChoice,
+    options: ['Give weather advice', 'Plan a vacation', 'Describe a recipe'],
+    answer: 'Give weather advice',
+  },
+  {
+    _id: 13,
+    text: 'Soma maze usubize: \n"The children are playing" \n *Uvuga arashaka:*',
+    type: QuestionType.MultipleChoice,
+    options: ['Describe work', 'Talk about children', 'Recap a meeting'],
+    answer: 'Talk about children',
+  },
+  {
+    _id: 14,
+    text: 'Andika "Ndi mu rugo." mu Cyongereza',
+    type: QuestionType.Writing,
+    answer: 'I am at home',
+  },
+  {
+    _id: 15,
+    text: 'Andika "Ndashaka kurya." mu Cyongereza',
+    type: QuestionType.Writing,
+    answer: 'I want to eat',
+  },
 ];
+
+export default MVP_Lesson;
