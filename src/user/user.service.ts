@@ -26,11 +26,4 @@ export class UserService {
       session.currentQuestionId++;
     }
   }
-
-  hasCompletedAllQuestions(
-    currentQuestionId: number,
-    totalQuestions: number,
-  ): boolean {
-    return currentQuestionId > totalQuestions;
-  }
 }

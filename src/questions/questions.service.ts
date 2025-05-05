@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Question } from './interfaces/question.interface';
-import questions from '../data/questions.json';
+import { Question, QuestionType } from './interfaces/question.interface';
+import questions from '../data/questions';
+import DefaultMessages from '../data/default-messages.json';
 
 @Injectable()
 export class QuestionsService {
   private list: Question[];
 
   constructor() {
-    this.list = questions as Question[];
+    this.list = questions;
   }
 
   findAll(): Question[] {
@@ -22,31 +23,55 @@ export class QuestionsService {
     return question;
   }
 
+  private getFeedback(correctAnswer: string) {
+    return {
+      correct: {
+        message: DefaultMessages['status.answer.correct'],
+        media: 'https://leow.netlify.app/Great%20Job%20Gif.mp4',
+      },
+      incorrect: {
+        message: `${DefaultMessages['status.answer.incorrect']} ${correctAnswer}`,
+        media: 'https://leow.netlify.app/That_s_not_right.mp4',
+      },
+    };
+  }
+
   checkAnswer(
     questionId: number,
     answer: string,
   ): { message: string; media: string } {
     const question = this.findById(questionId);
     const correctAnswer = question.answer;
+    const feedback = this.getFeedback(correctAnswer);
 
-    const feedback = {
-      correct: {
-        message: 'Byiza cyane! 🎉 Igisubizo cyawe ni cyo!',
-        media: 'https://leow.netlify.app/Great%20Job%20Gif.mp4',
-      },
-      incorrect: {
-        message: `Yiii! 😞 Igisubizo cyawe Ntabwo ari cyo.\n\nIgisubizo ni: ${correctAnswer}`,
-        media: 'https://leow.netlify.app/That_s_not_right.mp4',
-      },
-    };
+    if (this.isCorrect(question, answer)) return feedback.correct;
 
-    if (question.type === 'write-in-english') {
-      if (correctAnswer.toLowerCase().includes(answer.toLowerCase().trim())) {
-        return feedback.correct;
-      }
-      return feedback.incorrect;
+    return feedback.incorrect;
+  }
+
+  private isCorrect(question: Question, answer: string): boolean {
+    switch (question.type) {
+      case QuestionType.MultipleChoice:
+        return question.answer === answer;
+      case QuestionType.Writing:
+        return question.answer
+          .toLowerCase()
+          .includes(answer.toLowerCase().trim());
+      default:
+        return false;
+    }
+  }
+
+  getNext(currentQuestionId: number) {
+    if ((currentQuestionId ?? 1) > this.list.length)
+      return DefaultMessages['lesson.end'] as string;
+
+    const nextQuestion = this.findById(currentQuestionId);
+
+    if (nextQuestion.audio && !nextQuestion.text) {
+      nextQuestion.text = DefaultMessages['question.audio.text'];
     }
 
-    return feedback[answer === correctAnswer ? 'correct' : 'incorrect'];
+    return nextQuestion;
   }
 }
