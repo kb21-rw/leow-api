@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Question, QuestionType } from './interfaces/question.interface';
-import questions from '../data/questions';
+import questions from '../data/MVP_Lesson';
 import DefaultMessages from '../data/default-messages.json';
 
 @Injectable()
@@ -64,7 +64,7 @@ export class QuestionsService {
 
   getNext(currentQuestionId: number) {
     if ((currentQuestionId ?? 1) > this.list.length)
-      return DefaultMessages['lesson.end'] as string;
+      return DefaultMessages['lesson.end'];
 
     const nextQuestion = this.findById(currentQuestionId);
 
