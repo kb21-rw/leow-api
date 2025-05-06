@@ -3,7 +3,7 @@ import {
   QuestionType,
 } from 'src/questions/interfaces/question.interface';
 
-const MVPLessonQuestions: Question[] = [
+const mvpLessonQuestions: Question[] = [
   {
     _id: 1,
     text: 'Hitamo ubusobanuro bwa “Icyayi”',
@@ -107,4 +107,4 @@ const MVPLessonQuestions: Question[] = [
   },
 ];
 
-export default MVPLessonQuestions;
+export default mvpLessonQuestions;
