@@ -53,9 +53,10 @@ export class QuestionsService {
     switch (question.type) {
       case QuestionType.MultipleChoice:
         return question.answer === answer;
-      case QuestionType.Writing:
+      case QuestionType.Writing || QuestionType.Speaking:
         return question.answer
           .toLowerCase()
+          .trim()
           .includes(answer.toLowerCase().trim());
       default:
         return false;
@@ -64,7 +65,7 @@ export class QuestionsService {
 
   getNext(currentQuestionId: number) {
     if ((currentQuestionId ?? 1) > this.list.length)
-      return DefaultMessages['lesson.end'] as string;
+      return DefaultMessages['lesson.end'];
 
     const nextQuestion = this.findById(currentQuestionId);
 

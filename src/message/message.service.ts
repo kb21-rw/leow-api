@@ -140,4 +140,20 @@ export class MessageService {
       await this.sendText(messageSender, DefaultMessages['welcome']);
     }
   }
+
+  async getMediaUrl(mediaId: string): Promise<string> {
+    const url = `https://graph.facebook.com/v16.0/${mediaId}?fields=link&access_token=${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`;
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService
+          .get<{ link: string }>(url)
+          .pipe(map((res) => res.data)),
+      );
+      return response.link;
+    } catch (error) {
+      this.logger.error('Error fetching media URL:', error);
+      throw new BadRequestException('Error fetching media URL');
+    }
+  }
 }
