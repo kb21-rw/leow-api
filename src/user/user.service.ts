@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import DefaultMessages from '../data/default-messages.json';
 
 @Injectable()
 export class UserService {
@@ -34,9 +35,14 @@ export class UserService {
     if (session) {
       if (isCorrect) {
         session.correctAnswerStreak++;
+        // Check if streak milestone reached
+        if (session.correctAnswerStreak === 5) {
+          return DefaultMessages['status.answer.streak'];
+        }
       } else {
         session.correctAnswerStreak = 0;
       }
     }
+    return null;
   }
 }
