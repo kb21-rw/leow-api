@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Question, QuestionType } from './interfaces/question.interface';
 import questions from '../data/MVPLessonQuestions';
 import DefaultMessages from '../data/default-messages.json';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class QuestionsService {
   private list: Question[];
-
+  private userService: UserService;
   constructor() {
     this.list = questions;
   }
@@ -39,14 +40,15 @@ export class QuestionsService {
   checkAnswer(
     questionId: number,
     answer: string,
+    messageSender: string,
   ): { message: string; media: string } {
     const question = this.findById(questionId);
     const correctAnswer = question.answer;
     const feedback = this.getFeedback(correctAnswer);
 
-    if (this.isCorrect(question, answer)) return feedback.correct;
-
-    return feedback.incorrect;
+    const isCorrect = this.isCorrect(question, answer);
+    this.userService.incrementCorrectAnswerStreak(messageSender, isCorrect);
+    return isCorrect ? feedback.correct : feedback.incorrect;
   }
 
   private isCorrect(question: Question, answer: string): boolean {

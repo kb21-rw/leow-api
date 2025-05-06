@@ -7,6 +7,7 @@ export class UserService {
     {
       currentQuestionId: number;
       completed: boolean;
+      correctAnswerStreak: number;
     }
   >();
 
@@ -15,6 +16,7 @@ export class UserService {
       this.sessions.set(messageSender, {
         currentQuestionId: 1,
         completed: false,
+        correctAnswerStreak: 0,
       });
     }
     return this.sessions.get(messageSender);
@@ -24,6 +26,17 @@ export class UserService {
     const session = this.getSession(messageSender);
     if (session) {
       session.currentQuestionId++;
+    }
+  }
+
+  incrementCorrectAnswerStreak(messageSender: string, isCorrect: boolean) {
+    const session = this.getSession(messageSender);
+    if (session) {
+      if (isCorrect) {
+        session.correctAnswerStreak++;
+      } else {
+        session.correctAnswerStreak = 0;
+      }
     }
   }
 }
