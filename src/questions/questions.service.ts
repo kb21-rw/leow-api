@@ -74,9 +74,10 @@ export class QuestionsService {
     switch (question.type) {
       case QuestionType.MultipleChoice:
         return question.answer === answer;
-      case QuestionType.Writing:
+      case QuestionType.Writing || QuestionType.Speaking:
         return question.answer
           .toLowerCase()
+          .trim()
           .includes(answer.toLowerCase().trim());
       default:
         return false;

@@ -1,6 +1,7 @@
 export enum QuestionType {
   MultipleChoice = 'interactive',
   Writing = 'text',
+  Speaking = 'audio',
 }
 
 export interface Question {

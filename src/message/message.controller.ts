@@ -1,3 +1,5 @@
+import { AudioService } from './../audio/audio.service';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Controller,
   Get,
@@ -23,6 +25,7 @@ export class MessageController {
     private readonly messageService: MessageService,
     private readonly questionsService: QuestionsService,
     private readonly userService: UserService,
+    private readonly audioService: AudioService,
   ) {}
 
   @Get('webhook')
@@ -64,10 +67,17 @@ export class MessageController {
       }
 
       case 'interactive': {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         userResponse = message.interactive?.button_reply?.title as string;
         break;
       }
+
+      case 'audio': {
+        const mediaId = message.audio?.id as string;
+        const mediaUrl = await this.messageService.getMediaUrl(mediaId);
+        userResponse = await this.audioService.transcribe(mediaUrl);
+        break;
+      }
+
       default:
         this.logger.warn(`Unhandled message type: ${message.type}`);
     }
@@ -91,7 +101,7 @@ export class MessageController {
     switch (nextQuestion.type) {
       case QuestionType.MultipleChoice:
         return this.messageService.sendWithOptions(messageSender, nextQuestion);
-      case QuestionType.Writing:
+      case QuestionType.Writing || QuestionType.Speaking:
         return this.messageService.sendText(messageSender, nextQuestion.text);
       default:
         return Promise.resolve('Unhandled type');
