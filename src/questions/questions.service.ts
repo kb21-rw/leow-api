@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { Question, QuestionType } from './interfaces/question.interface';
-import questions from '../data/questions';
+import questions from '../data/mvpLessonQuestions';
 import DefaultMessages from '../data/default-messages.json';
+import { UserService } from '../user/user.service';
+import { MessageService } from '../message/message.service';
 
 @Injectable()
 export class QuestionsService {
   private list: Question[];
 
-  constructor() {
+  constructor(
+    private readonly userService: UserService,
+    private readonly messageService: MessageService,
+  ) {
     this.list = questions;
   }
 
@@ -39,13 +44,29 @@ export class QuestionsService {
   checkAnswer(
     questionId: number,
     answer: string,
+    // messageSender: string,
   ): { message: string; media: string } {
     const question = this.findById(questionId);
     const correctAnswer = question.answer;
     const feedback = this.getFeedback(correctAnswer);
 
-    if (this.isCorrect(question, answer)) return feedback.correct;
+    // const isCorrect = this.isCorrect(question, answer);
+    // const streakMessage = this.userService.incrementCorrectAnswerStreak(
+    //   messageSender,
+    //   isCorrect,
+    // );
 
+    // if (streakMessage) {
+    //   await this.messageService.sendFeedback(
+    //     messageSender,
+    //     isCorrect ? feedback.correct : feedback.incorrect,
+    //   );
+    //   await this.messageService.sendText(messageSender, streakMessage);
+    //   return { message: '', media: '' };
+    // }
+
+    // return isCorrect ? feedback.correct : feedback.incorrect;
+    if (this.isCorrect(question, answer)) return feedback.correct;
     return feedback.incorrect;
   }
 
