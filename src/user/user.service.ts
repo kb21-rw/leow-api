@@ -31,7 +31,6 @@ export class UserService {
     const session = this.getSession(messageSender);
     if (session) {
       if (session.isReviewMode) {
-        // Remove the current question from incorrect questions
         const currentIndex = session.incorrectQuestions.indexOf(
           session.currentQuestionId,
         );
@@ -39,21 +38,18 @@ export class UserService {
           session.incorrectQuestions.splice(currentIndex, 1);
         }
 
-        // If no more incorrect questions, exit review mode
         if (session.incorrectQuestions.length === 0) {
           session.isReviewMode = false;
           session.currentQuestionId = 1;
           return;
         }
 
-        // Move to next incorrect question
         session.currentQuestionId = session.incorrectQuestions[0];
       } else {
         session.currentQuestionId++;
 
-        // If we've completed all questions and have incorrect ones, enter review mode
         if (
-          session.currentQuestionId > 20 &&
+          session.currentQuestionId > 15 &&
           session.incorrectQuestions.length > 0
         ) {
           session.isReviewMode = true;
@@ -69,12 +65,11 @@ export class UserService {
       if (isCorrect) {
         session.correctAnswerStreak++;
         if (session.correctAnswerStreak === 5) {
-          session.correctAnswerStreak = 0; // Reset streak at 5
+          session.correctAnswerStreak = 0; 
           return DefaultMessages['status.answer.streak'] as string;
         }
       } else {
         session.correctAnswerStreak = 0;
-        // Add to incorrect questions if not already in review mode
         if (
           !session.isReviewMode &&
           !session.incorrectQuestions.includes(session.currentQuestionId)
