@@ -41,33 +41,6 @@ export class QuestionsService {
     };
   }
 
-  async checkAnswer(
-    questionId: number,
-    answer: string,
-    messageSender: string,
-  ): Promise<{ message: string; media: string }> {
-    const question = this.findById(questionId);
-    const correctAnswer = question.answer;
-    const feedback = this.getFeedback(correctAnswer);
-
-    const isCorrect = this.isCorrect(question, answer);
-    const streakMessage = this.userService.incrementCorrectAnswerStreak(
-      messageSender,
-      isCorrect,
-    );
-
-    if (streakMessage) {
-      await this.messageService.sendFeedback(
-        messageSender,
-        isCorrect ? feedback.correct : feedback.incorrect,
-      );
-      await this.messageService.sendText(messageSender, streakMessage);
-      return { message: '', media: '' };
-    }
-
-    return isCorrect ? feedback.correct : feedback.incorrect;
-  }
-
   private isCorrect(question: Question, answer: string): boolean {
     switch (question.type) {
       case QuestionType.MultipleChoice:
@@ -82,29 +55,67 @@ export class QuestionsService {
     }
   }
 
-  getNext(currentQuestionId: number, messageSender: string) {
-    const isReviewMode = this.userService.isInReviewMode(messageSender);
-    const session = this.userService.getSession(messageSender);
+  async checkAnswer(
+    questionId: number,
+    answer: string,
+    messageSender: string,
+  ): Promise<{ message: string; media: string; nextQuestion?: Question }> {
+    const question = this.findById(questionId);
+    const correctAnswer = question.answer;
+    const feedback = this.getFeedback(correctAnswer);
 
+    const isCorrect = this.isCorrect(question, answer);
+    const streakMessage = this.userService.incrementCorrectAnswerStreak(
+      messageSender,
+      isCorrect,
+    );
+
+    this.userService.incrementCurrentQuestion(messageSender);
+    const nextQuestion = this.getNext(messageSender);
+
+    if (streakMessage) {
+      await this.messageService.sendFeedback(
+        messageSender,
+        isCorrect ? feedback.correct : feedback.incorrect,
+      );
+      await this.messageService.sendText(messageSender, streakMessage);
+      return {
+        message: '',
+        media: '',
+        nextQuestion:
+          typeof nextQuestion === 'string' ? undefined : nextQuestion,
+      };
+    }
+
+    return {
+      ...(isCorrect ? feedback.correct : feedback.incorrect),
+      nextQuestion: typeof nextQuestion === 'string' ? undefined : nextQuestion,
+    };
+  }
+
+  private getNext(messageSender: string): Question | string {
+    const session = this.userService.getSession(messageSender);
     if (!session) {
       return DefaultMessages['lesson.end'];
     }
+
+    const isReviewMode = this.userService.isInReviewMode(messageSender);
 
     if (isReviewMode && session.incorrectQuestions.length === 0) {
       session.isReviewMode = false;
       return DefaultMessages['lesson.end'];
     }
-    
+
     if (
       !isReviewMode &&
-      (currentQuestionId ?? 1) > this.list.length &&
+      session.currentQuestionId > this.list.length &&
       session.incorrectQuestions.length > 0
     ) {
       session.isReviewMode = true;
       session.currentQuestionId = session.incorrectQuestions[0];
     }
 
-    const nextQuestion = this.findById(currentQuestionId);
+    const nextQuestion = this.findById(session.currentQuestionId);
 
     if (nextQuestion.audio && !nextQuestion.text) {
       nextQuestion.text = DefaultMessages['question.audio.text'];
