@@ -82,14 +82,22 @@ export class QuestionsService {
     }
   }
 
-  getNext(currentQuestionId: number) {
-    if ((currentQuestionId ?? 1) > this.list.length)
+  getNext(currentQuestionId: number, messageSender: string) {
+    const isReviewMode = this.userService.isInReviewMode(messageSender);
+
+    if (!isReviewMode && (currentQuestionId ?? 1) > this.list.length) {
       return DefaultMessages['lesson.end'];
+    }
 
     const nextQuestion = this.findById(currentQuestionId);
 
     if (nextQuestion.audio && !nextQuestion.text) {
       nextQuestion.text = DefaultMessages['question.audio.text'];
+    }
+
+    // Add review mode indicator to the question text if in review mode
+    if (isReviewMode) {
+      nextQuestion.text = `[Review Mode] ${nextQuestion.text}`;
     }
 
     return nextQuestion;

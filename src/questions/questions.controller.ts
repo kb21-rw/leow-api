@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { Question } from './interfaces/question.interface';
 
@@ -14,5 +14,13 @@ export class QuestionsController {
   @Get(':id')
   findById(@Param('id') id: string): Question | undefined {
     return this.questionsService.findById(+id);
+  }
+
+  @Get('next/:id')
+  getNext(
+    @Param('id') id: string,
+    @Query('messageSender') messageSender: string,
+  ): Question | string {
+    return this.questionsService.getNext(+id, messageSender);
   }
 }
