@@ -92,10 +92,7 @@ export class MessageController {
       await this.messageService.sendFeedback(messageSender, feedback);
     }
 
-    const nextQuestion = this.questionsService.getNext(
-      currentQuestionId,
-      messageSender,
-    );
+    const nextQuestion = this.questionsService.getNext(messageSender);
 
     if (typeof nextQuestion === 'string') {
       return this.messageService.sendText(messageSender, nextQuestion);

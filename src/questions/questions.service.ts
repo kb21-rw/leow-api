@@ -93,7 +93,7 @@ export class QuestionsService {
     };
   }
 
-  private getNext(messageSender: string): Question | string {
+  getNext(messageSender: string): Question | string {
     const session = this.userService.getSession(messageSender);
     if (!session) {
       return DefaultMessages['lesson.end'];
