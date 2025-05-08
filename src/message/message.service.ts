@@ -121,7 +121,7 @@ export class MessageService {
     await this.sendText(recipient, feedback.message);
     await this.sendMedia(recipient, MediaType.Video, feedback.media);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    this.userService.incrementCurrentQuestion(recipient);
+    // this.userService.incrementCurrentQuestion(recipient);
   }
 
   async parseText(

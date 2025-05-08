@@ -64,7 +64,7 @@ export class QuestionsService {
       await this.messageService.sendText(messageSender, streakMessage);
       return { message: '', media: '' };
     }
-
+    this.userService.incrementCurrentQuestion(messageSender);
     return isCorrect ? feedback.correct : feedback.incorrect;
   }
 
