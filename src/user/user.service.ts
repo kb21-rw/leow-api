@@ -35,7 +35,6 @@ export class UserService {
     if (session) {
       if (isCorrect) {
         session.correctAnswerStreak++;
-        // Check if streak milestone reached
         if (session.correctAnswerStreak === 5) {
           return DefaultMessages['status.answer.streak'] as string;
         }
