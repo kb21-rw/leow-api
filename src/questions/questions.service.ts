@@ -41,33 +41,31 @@ export class QuestionsService {
     };
   }
 
-  checkAnswer(
+  async checkAnswer(
     questionId: number,
     answer: string,
-    // messageSender: string,
-  ): { message: string; media: string } {
+    messageSender: string,
+  ): Promise<{ message: string; media: string }> {
     const question = this.findById(questionId);
     const correctAnswer = question.answer;
     const feedback = this.getFeedback(correctAnswer);
 
-    // const isCorrect = this.isCorrect(question, answer);
-    // const streakMessage = this.userService.incrementCorrectAnswerStreak(
-    //   messageSender,
-    //   isCorrect,
-    // );
+    const isCorrect = this.isCorrect(question, answer);
+    const streakMessage = this.userService.incrementCorrectAnswerStreak(
+      messageSender,
+      isCorrect,
+    );
 
-    // if (streakMessage) {
-    //   await this.messageService.sendFeedback(
-    //     messageSender,
-    //     isCorrect ? feedback.correct : feedback.incorrect,
-    //   );
-    //   await this.messageService.sendText(messageSender, streakMessage);
-    //   return { message: '', media: '' };
-    // }
+    if (streakMessage) {
+      await this.messageService.sendFeedback(
+        messageSender,
+        isCorrect ? feedback.correct : feedback.incorrect,
+      );
+      await this.messageService.sendText(messageSender, streakMessage);
+      return { message: '', media: '' };
+    }
 
-    // return isCorrect ? feedback.correct : feedback.incorrect;
-    if (this.isCorrect(question, answer)) return feedback.correct;
-    return feedback.incorrect;
+    return isCorrect ? feedback.correct : feedback.incorrect;
   }
 
   private isCorrect(question: Question, answer: string): boolean {
