@@ -73,10 +73,10 @@ export class MessageController {
     }
 
     if (userResponse) {
-      const feedback = await this.questionsService.checkAnswer(
+      const feedback = this.questionsService.checkAnswer(
         currentQuestionId,
         userResponse,
-        messageSender,
+        // messageSender,
       );
 
       await this.messageService.sendFeedback(messageSender, feedback);
