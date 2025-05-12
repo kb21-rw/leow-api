@@ -65,8 +65,11 @@ export class UserService {
     if (session) {
       if (isCorrect) {
         session.correctAnswerStreak++;
-        if (session.correctAnswerStreak === 5) {
-          session.correctAnswerStreak = 0;
+        if (
+          session.correctAnswerStreak === 5 ||
+          session.correctAnswerStreak === 10 ||
+          session.correctAnswerStreak === 15
+        ) {
           return DefaultMessages['status.answer.streak'];
         }
       } else {
