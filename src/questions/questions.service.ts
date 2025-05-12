@@ -122,7 +122,7 @@ export class QuestionsService {
     }
 
     if (isReviewMode) {
-      nextQuestion.text = `[Review Mode] ${nextQuestion.text}`;
+      nextQuestion.text = `[Gusubiramo] ${nextQuestion.text}`;
     }
 
     return nextQuestion;
