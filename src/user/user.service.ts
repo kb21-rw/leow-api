@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import DefaultMessages from '../data/default-messages.json';
-import questions from '../data/mvpLessonQuestions';
+import questions from '../data/mvp-lesson';
 
 @Injectable()
 export class UserService {
@@ -66,7 +66,7 @@ export class UserService {
       if (isCorrect) {
         session.correctAnswerStreak++;
         if (session.correctAnswerStreak === 5) {
-          session.correctAnswerStreak = 0; 
+          session.correctAnswerStreak = 0;
           return DefaultMessages['status.answer.streak'];
         }
       } else {
@@ -85,5 +85,10 @@ export class UserService {
   isInReviewMode(messageSender: string): boolean {
     const session = this.getSession(messageSender);
     return session?.isReviewMode || false;
+  }
+
+  isNewSession(messageSender: string): boolean {
+    const session = this.getSession(messageSender);
+    return session?.currentQuestionId === 1;
   }
 }

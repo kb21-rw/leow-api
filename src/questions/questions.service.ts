@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Question, QuestionType } from './interfaces/question.interface';
-import questions from '../data/mvpLessonQuestions';
+import questions from '../data/mvp-lesson';
 import DefaultMessages from '../data/default-messages.json';
 import { UserService } from '../user/user.service';
 import { MessageService } from '../message/message.service';

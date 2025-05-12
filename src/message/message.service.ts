@@ -127,18 +127,20 @@ export class MessageService {
   async parseText(
     messageSender: string,
     message: InteractiveMessageResponse,
-  ): Promise<void> {
+  ): Promise<string> {
     const text = message.text?.body;
     if (!text) {
       this.logger.warn('Received text message without body');
-      return;
+      return '';
     }
 
     const userSession = this.userService.getSession(messageSender);
 
     if (userSession?.currentQuestionId === 1) {
-      await this.sendText(messageSender, DefaultMessages['welcome']);
+      return this.sendText(messageSender, DefaultMessages['welcome']);
     }
+
+    return '';
   }
 
   async getMediaUrl(mediaId: string): Promise<string> {

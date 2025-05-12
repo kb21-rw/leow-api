@@ -61,8 +61,11 @@ export class MessageController {
 
     switch (message.type) {
       case 'text': {
-        await this.messageService.parseText(messageSender, message);
-        userResponse = message.text?.body ?? '';
+        const initialMessage = await this.messageService.parseText(
+          messageSender,
+          message,
+        );
+        userResponse = initialMessage ? '' : (message.text?.body ?? '');
         break;
       }
 
