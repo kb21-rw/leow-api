@@ -104,7 +104,7 @@ export class MessageController {
     switch (nextQuestion.type) {
       case QuestionType.MultipleChoice:
         return this.messageService.sendWithOptions(messageSender, nextQuestion);
-      case QuestionType.Writing || QuestionType.Speaking:
+      case QuestionType.Writing:
         return this.messageService.sendText(messageSender, nextQuestion.text);
       default:
         return Promise.resolve('Unhandled type');

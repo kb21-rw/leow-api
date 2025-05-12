@@ -45,7 +45,7 @@ export class QuestionsService {
     switch (question.type) {
       case QuestionType.MultipleChoice:
         return question.answer === answer;
-      case QuestionType.Writing || QuestionType.Speaking:
+      case QuestionType.Writing:
         return question.answer
           .toLowerCase()
           .trim()
