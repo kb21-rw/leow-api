@@ -82,13 +82,16 @@ export class UserService {
     return null;
   }
 
-  isInReviewMode(messageSender: string): boolean {
-    const session = this.getSession(messageSender);
-    return session?.isReviewMode || false;
+  setReviewMode(messageSender: string, isReviewMode: boolean) {
+    const session = this.getSession(messageSender)!;
+    session.isReviewMode = isReviewMode;
   }
 
-  isNewSession(messageSender: string): boolean {
-    const session = this.getSession(messageSender);
-    return session?.currentQuestionId === 1;
+  setCurrrentQuestionId(
+    messageSender: string,
+    currentQuestionId: number,
+  ): void {
+    const session = this.getSession(messageSender)!;
+    session.currentQuestionId = currentQuestionId;
   }
 }

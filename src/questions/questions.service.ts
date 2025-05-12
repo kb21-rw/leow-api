@@ -55,11 +55,11 @@ export class QuestionsService {
     }
   }
 
-  async checkAnswer(
+  checkAnswer(
     questionId: number,
     answer: string,
     messageSender: string,
-  ): Promise<{ message: string; media: string; nextQuestion?: Question }> {
+  ): { message: string; media: string } {
     const question = this.findById(questionId);
     const correctAnswer = question.answer;
     const feedback = this.getFeedback(correctAnswer);
@@ -70,52 +70,36 @@ export class QuestionsService {
       isCorrect,
     );
 
-    this.userService.incrementCurrentQuestion(messageSender);
-    const nextQuestion = this.getNext(messageSender);
+    if (streakMessage)
+      feedback.correct.message = `${feedback.correct.message} \n ${streakMessage}`;
 
-    if (streakMessage) {
-      await this.messageService.sendFeedback(
-        messageSender,
-        isCorrect ? feedback.correct : feedback.incorrect,
-      );
-      await this.messageService.sendText(messageSender, streakMessage);
-      return {
-        message: '',
-        media: '',
-        nextQuestion:
-          typeof nextQuestion === 'string' ? undefined : nextQuestion,
-      };
-    }
+    if (isCorrect) return feedback.correct;
 
-    return {
-      ...(isCorrect ? feedback.correct : feedback.incorrect),
-      nextQuestion: typeof nextQuestion === 'string' ? undefined : nextQuestion,
-    };
+    return feedback.incorrect;
   }
 
   getNext(messageSender: string): Question | string {
-    const session = this.userService.getSession(messageSender);
-    if (!session) {
-      return DefaultMessages['lesson.end'];
-    }
+    const { isReviewMode, incorrectQuestions, currentQuestionId } =
+      this.userService.getSession(messageSender)!;
 
-    const isReviewMode = this.userService.isInReviewMode(messageSender);
-
-    if (isReviewMode && session.incorrectQuestions.length === 0) {
-      session.isReviewMode = false;
+    if (isReviewMode && incorrectQuestions.length === 0) {
+      this.userService.setReviewMode(messageSender, false);
       return DefaultMessages['lesson.end'];
     }
 
     if (
       !isReviewMode &&
-      session.currentQuestionId > this.list.length &&
-      session.incorrectQuestions.length > 0
+      currentQuestionId > this.list.length &&
+      incorrectQuestions.length > 0
     ) {
-      session.isReviewMode = true;
-      session.currentQuestionId = session.incorrectQuestions[0];
+      this.userService.setReviewMode(messageSender, true);
+      this.userService.setCurrrentQuestionId(
+        messageSender,
+        incorrectQuestions[0],
+      );
     }
 
-    const nextQuestion = this.findById(session.currentQuestionId);
+    const nextQuestion = this.findById(currentQuestionId);
 
     if (nextQuestion.audio && !nextQuestion.text) {
       nextQuestion.text = DefaultMessages['question.audio.text'];
