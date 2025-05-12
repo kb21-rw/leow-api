@@ -14,7 +14,7 @@ const list: Question[] = [
   {
     _id: 2,
     text: 'Vuga ibyo usoma: \n Hello',
-    type: QuestionType.Speaking,
+    type: QuestionType.Writing,
     answer: 'Hello',
   },
   {
@@ -41,7 +41,7 @@ const list: Question[] = [
   {
     _id: 6,
     text: 'Vuga ibyo usoma: \n Water',
-    type: QuestionType.Speaking,
+    type: QuestionType.Writing,
     answer: 'Water',
   },
   {
