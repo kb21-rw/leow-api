@@ -75,9 +75,28 @@ export class MessageController {
       }
 
       case 'audio': {
-        const mediaId = message.audio?.id as string;
-        const mediaUrl = await this.messageService.getMediaUrl(mediaId);
-        userResponse = await this.audioService.transcribe(mediaUrl);
+        this.logger.log(
+          `Received audio message ${messageId} from ${messageSender}`,
+        );
+        try {
+          const mediaId = message.audio?.id as string;
+          if (!mediaId) {
+            this.logger.warn('Audio message does not contain a media ID');
+            break;
+          }
+
+          const mediaUrl = await this.messageService.getMediaUrl(mediaId);
+          if (!mediaUrl) {
+            this.logger.warn(
+              `Failed to retrieve media URL for media ID: ${mediaId}`,
+            );
+            break;
+          }
+
+          userResponse = await this.audioService.transcribe(mediaUrl);
+        } catch (error) {
+          this.logger.error('Error processing audio message', error);
+        }
         break;
       }
 
