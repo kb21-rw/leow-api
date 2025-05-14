@@ -1,10 +1,11 @@
 import { createClient, DeepgramClient } from '@deepgram/sdk';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AudioService {
   private deepgram: DeepgramClient;
+  private readonly logger = new Logger(AudioService.name);
 
   constructor(private configService: ConfigService) {
     const deepgramApiKey = this.configService.get<string>('DEEPGRAM_API_KEY');
@@ -35,6 +36,8 @@ export class AudioService {
       });
 
     if (error) throw error;
+
+    this.logger.log('Transcription result:', result);
 
     return result.results.channels[0].alternatives[0].transcript;
   }
