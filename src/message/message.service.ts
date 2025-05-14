@@ -156,4 +156,27 @@ export class MessageService {
       throw new BadRequestException('Error fetching media URL');
     }
   }
+
+  async downloadMedia(mediaId: string): Promise<Buffer> {
+    // First get the media URL
+    const mediaUrl = await this.getMediaUrl(mediaId);
+
+    try {
+      const response = await lastValueFrom(
+        this.httpService
+          .get(mediaUrl, {
+            headers: {
+              Authorization: `Bearer ${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`,
+            },
+            responseType: 'arraybuffer',
+          })
+          .pipe(map((res: { data: ArrayBuffer }) => res.data)),
+      );
+
+      return Buffer.from(response);
+    } catch (error) {
+      this.logger.error('Error downloading media:', error);
+      throw new BadRequestException('Error downloading media');
+    }
+  }
 }

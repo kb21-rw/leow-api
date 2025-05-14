@@ -26,4 +26,16 @@ export class AudioService {
 
     return result.results.channels[0].alternatives[0].transcript;
   }
+
+  async transcribeBuffer(audioBuffer: Buffer): Promise<string> {
+    const { result, error } =
+      await this.deepgram.listen.prerecorded.transcribeFile(audioBuffer, {
+        model: 'nova-3',
+        smart_format: true,
+      });
+
+    if (error) throw error;
+
+    return result.results.channels[0].alternatives[0].transcript;
+  }
 }

@@ -85,15 +85,9 @@ export class MessageController {
             break;
           }
 
-          const mediaUrl = await this.messageService.getMediaUrl(mediaId);
-          if (!mediaUrl) {
-            this.logger.warn(
-              `Failed to retrieve media URL for media ID: ${mediaId}`,
-            );
-            break;
-          }
+          const audioBuffer = await this.messageService.downloadMedia(mediaId);
 
-          userResponse = await this.audioService.transcribe(mediaUrl);
+          userResponse = await this.audioService.transcribeBuffer(audioBuffer);
         } catch (error) {
           this.logger.error('Error processing audio message', error);
         }
