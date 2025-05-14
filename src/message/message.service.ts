@@ -158,7 +158,6 @@ export class MessageService {
   }
 
   async downloadMedia(mediaId: string): Promise<Buffer> {
-    // First get the media URL
     const mediaUrl = await this.getMediaUrl(mediaId);
 
     try {
