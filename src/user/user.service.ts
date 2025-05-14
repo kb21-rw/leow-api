@@ -70,7 +70,10 @@ export class UserService {
           session.correctAnswerStreak === 10 ||
           session.correctAnswerStreak === 15
         ) {
-          return DefaultMessages['status.answer.streak'];
+          return DefaultMessages['status.answer.streak'].replace(
+            '{{streakCount}}',
+            `${session.correctAnswerStreak}`,
+          );
         }
       } else {
         session.correctAnswerStreak = 0;
