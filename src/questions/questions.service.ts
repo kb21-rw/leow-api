@@ -82,16 +82,20 @@ export class QuestionsService {
     const { isReviewMode, incorrectQuestions, currentQuestionId } =
       this.userService.getSession(messageSender)!;
 
-    if (isReviewMode && incorrectQuestions.length === 0) {
+    const hasFinishedIncorrectQuestions =
+      isReviewMode && incorrectQuestions.length > 0;
+
+    if (hasFinishedIncorrectQuestions) {
       this.userService.setReviewMode(messageSender, false);
       return DefaultMessages['lesson.end'];
     }
 
-    if (
+    const hasFinishedAllQuestions =
       !isReviewMode &&
       currentQuestionId > this.list.length &&
-      incorrectQuestions.length > 0
-    ) {
+      incorrectQuestions.length === 0;
+
+    if (hasFinishedAllQuestions) {
       this.userService.setReviewMode(messageSender, true);
       this.userService.setCurrrentQuestionId(
         messageSender,
