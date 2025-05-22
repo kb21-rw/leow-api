@@ -46,7 +46,7 @@ const list: Question[] = [
   },
   {
     _id: 7,
-    text: '',
+    text: 'Ni iki wumva?',
     type: QuestionType.MultipleChoice,
     audio: 'https://leow.netlify.app/Pronunciation_hello_.mp3',
     options: ['Hello', 'Below', 'Yellow'],
@@ -54,7 +54,7 @@ const list: Question[] = [
   },
   {
     _id: 8,
-    text: '',
+    text: 'Ni iki wumva?',
     type: QuestionType.MultipleChoice,
     audio: 'https://leow.netlify.app/Pronunciation_water.mp3',
     options: ['Water', 'Butter', 'Quarter'],
@@ -62,7 +62,7 @@ const list: Question[] = [
   },
   {
     _id: 9,
-    text: '',
+    text: 'Ni iki wumva?',
     type: QuestionType.MultipleChoice,
     audio: 'https://leow.netlify.app/Pronunciation%20_yes_.mp3',
     options: ['yes', 'guess', 'rest'],

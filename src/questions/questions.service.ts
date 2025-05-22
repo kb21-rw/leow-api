@@ -79,35 +79,12 @@ export class QuestionsService {
   }
 
   getNext(messageSender: string): Question | string {
-    const { isReviewMode, incorrectQuestions, currentQuestionId } =
+    const { currentQuestionId, completed, isReviewMode } =
       this.userService.getSession(messageSender)!;
 
-    const hasFinishedIncorrectQuestions =
-      isReviewMode && incorrectQuestions.length > 0;
-
-    if (hasFinishedIncorrectQuestions) {
-      this.userService.setReviewMode(messageSender, false);
-      return DefaultMessages['lesson.end'];
-    }
-
-    const hasFinishedAllQuestions =
-      !isReviewMode &&
-      currentQuestionId > this.list.length &&
-      incorrectQuestions.length === 0;
-
-    if (hasFinishedAllQuestions) {
-      this.userService.setReviewMode(messageSender, true);
-      this.userService.setCurrrentQuestionId(
-        messageSender,
-        incorrectQuestions[0],
-      );
-    }
+    if (completed) return DefaultMessages['lesson.end'];
 
     const nextQuestion = this.findById(currentQuestionId);
-
-    if (nextQuestion.audio && !nextQuestion.text) {
-      nextQuestion.text = DefaultMessages['question.audio.text'];
-    }
 
     if (isReviewMode) {
       nextQuestion.text = `[Gusubiramo] ${nextQuestion.text}`;

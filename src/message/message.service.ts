@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map } from 'rxjs';
@@ -11,13 +12,21 @@ import {
   WHATSAPP_CLOUD_API_MESSAGES_URL,
 } from './constants/cloud-api';
 import { UserService } from '../user/user.service';
-import { Question } from '../questions/interfaces/question.interface';
+import {
+  Question,
+  QuestionType,
+} from '../questions/interfaces/question.interface';
 import DefaultMessages from '../data/default-messages.json';
 import { ApiResponse } from './message.interface';
+import { AudioService } from 'src/audio/audio.service';
+import { downloadMedia } from 'src/helpers/media.helper';
 
 @Injectable()
 export class MessageService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly audioService: AudioService,
+  ) {}
 
   private readonly httpService = new HttpService();
   private readonly logger = new Logger(MessageService.name);
@@ -124,8 +133,8 @@ export class MessageService {
     this.userService.incrementCurrentQuestion(recipient);
   }
 
-  async parseText(
-    messageSender: string,
+  async handleInitial(
+    sender: string,
     message: InteractiveMessageResponse,
   ): Promise<string> {
     const text = message.text?.body;
@@ -134,48 +143,56 @@ export class MessageService {
       return '';
     }
 
-    const userSession = this.userService.getSession(messageSender);
+    const userSession = this.userService.getSession(sender);
 
     if (userSession?.currentQuestionId === 1) {
-      return this.sendText(messageSender, DefaultMessages['welcome']);
+      return this.sendText(sender, DefaultMessages['welcome']);
     }
 
     return '';
   }
 
-  async getMediaUrl(mediaId: string): Promise<string> {
-    const url = `https://graph.facebook.com/v16.0/${mediaId}?field=link&access_token=${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`;
+  async getUserResponse(
+    sender: string,
+    message: InteractiveMessageResponse,
+  ): Promise<string | null> {
+    switch (message.type) {
+      case 'text': {
+        const initialMessage = await this.handleInitial(sender, message);
+        return initialMessage ? null : (message.text?.body ?? '');
+      }
 
-    try {
-      const response = await lastValueFrom(
-        this.httpService.get<{ url: string }>(url).pipe(map((res) => res.data)),
-      );
-      return response.url;
-    } catch (error) {
-      this.logger.error('Error fetching media URL:', error);
-      throw new BadRequestException('Error fetching media URL');
+      case 'interactive': {
+        return message.interactive?.button_reply?.title as string;
+      }
+
+      case 'audio': {
+        const mediaId = message.audio?.id as string;
+        const audioBuffer = await downloadMedia(mediaId, this.httpService);
+        return await this.audioService.transcribeBuffer(audioBuffer);
+      }
+
+      default:
+        this.logger.warn(`Unhandled message type: ${message.type}`);
+        return null;
     }
   }
 
-  async downloadMedia(mediaId: string): Promise<Buffer> {
-    const mediaUrl = await this.getMediaUrl(mediaId);
+  async sendQuestion(
+    sender: string,
+    question: Question | string,
+  ): Promise<string> {
+    if (typeof question === 'string') {
+      return this.sendText(sender, question);
+    }
 
-    try {
-      const response = await lastValueFrom(
-        this.httpService
-          .get(mediaUrl, {
-            headers: {
-              Authorization: `Bearer ${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`,
-            },
-            responseType: 'arraybuffer',
-          })
-          .pipe(map((res: { data: ArrayBuffer }) => res.data)),
-      );
-
-      return Buffer.from(response);
-    } catch (error) {
-      this.logger.error('Error downloading media:', error);
-      throw new BadRequestException('Error downloading media');
+    switch (question.type) {
+      case QuestionType.MultipleChoice:
+        return this.sendWithOptions(sender, question);
+      case QuestionType.Writing:
+        return this.sendText(sender, question.text);
+      default:
+        return Promise.resolve('Unhandled type');
     }
   }
 }
