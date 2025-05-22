@@ -20,15 +20,6 @@ export class UserService {
     return this.sessions.get(messageSender);
   }
 
-  // setSessionProperties(
-  //   messageSender: string,
-  //   properties: Partial<Session>,
-  // ): void {
-  //   const session = this.getSession(messageSender);
-  //   if (!session) return;
-  //   Object.assign(session, properties);
-  // }
-
   private removeFromIncorrect(session: Session) {
     const currentIndex = session.incorrectQuestions.indexOf(
       session.currentQuestionId,
@@ -50,7 +41,6 @@ export class UserService {
     const session = this.getSession(messageSender);
     if (!session) return;
 
-    //when they're in review mode
     if (session.isReviewMode) {
       this.removeFromIncorrect(session);
       if (session.incorrectQuestions.length === 0) {
@@ -61,7 +51,6 @@ export class UserService {
       return;
     }
 
-    //check for the last question in normal questions
     if (session.currentQuestionId === questions.length) {
       if (session.incorrectQuestions.length > 0) {
         this.startReviewMode(session);
