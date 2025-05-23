@@ -75,7 +75,10 @@ export class UserService {
 
     session.correctAnswerStreak++;
 
-    if ([5, 10, 15].includes(session.correctAnswerStreak)) {
+    if (
+      session.correctAnswerStreak > 0 &&
+      session.correctAnswerStreak % 5 === 0
+    ) {
       return DefaultMessages['status.answer.streak'].replace(
         '{{streakCount}}',
         `${session.correctAnswerStreak}`,
