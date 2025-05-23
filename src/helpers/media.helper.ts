@@ -4,11 +4,11 @@ import { WHATSAPP_CLOUD_API_ACCESS_TOKEN } from 'src/message/constants/cloud-api
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException } from '@nestjs/common';
 
-export async function getMediaUrl(
-  mediaId: string,
+export async function getUrl(
+  id: string,
   httpService: HttpService,
 ): Promise<string> {
-  const url = `https://graph.facebook.com/v16.0/${mediaId}?field=link&access_token=${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`;
+  const url = `https://graph.facebook.com/v16.0/${id}?field=link&access_token=${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`;
 
   try {
     const response = await lastValueFrom(
@@ -22,16 +22,14 @@ export async function getMediaUrl(
   }
 }
 
-export async function downloadMedia(
-  mediaId: string,
+export async function download(
+  url: string,
   httpService: HttpService,
 ): Promise<Buffer> {
-  const mediaUrl = await getMediaUrl(mediaId, httpService);
-
   try {
     const response = await lastValueFrom(
       httpService
-        .get(mediaUrl, {
+        .get(url, {
           headers: {
             Authorization: `Bearer ${WHATSAPP_CLOUD_API_ACCESS_TOKEN}`,
           },

@@ -19,7 +19,7 @@ import {
 import DefaultMessages from '../data/default-messages.json';
 import { ApiResponse } from './message.interface';
 import { AudioService } from 'src/audio/audio.service';
-import { downloadMedia } from 'src/helpers/media.helper';
+import { download, getUrl } from 'src/helpers/media.helper';
 
 @Injectable()
 export class MessageService {
@@ -168,7 +168,8 @@ export class MessageService {
 
       case 'audio': {
         const mediaId = message.audio?.id as string;
-        const audioBuffer = await downloadMedia(mediaId, this.httpService);
+        const audioUrl = await getUrl(mediaId, this.httpService);
+        const audioBuffer = await download(audioUrl, this.httpService);
         return await this.audioService.transcribeBuffer(audioBuffer);
       }
 
