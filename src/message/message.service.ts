@@ -133,7 +133,7 @@ export class MessageService {
     this.userService.incrementCurrentQuestion(recipient);
   }
 
-  async handleInitial(
+  async startConversation(
     sender: string,
     message: InteractiveMessageResponse,
   ): Promise<string> {
@@ -152,13 +152,13 @@ export class MessageService {
     return '';
   }
 
-  async getUserResponse(
+  async parseResponse(
     sender: string,
     message: InteractiveMessageResponse,
   ): Promise<string | null> {
     switch (message.type) {
       case 'text': {
-        const initialMessage = await this.handleInitial(sender, message);
+        const initialMessage = await this.startConversation(sender, message);
         return initialMessage ? null : (message.text?.body ?? '');
       }
 

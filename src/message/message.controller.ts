@@ -56,7 +56,7 @@ export class MessageController {
 
     this.logger.log(`Received message ${messageId} from ${sender}`);
 
-    const userResponse = await this.messageService.getUserResponse(
+    const userResponse = await this.messageService.parseResponse(
       sender,
       message,
     );
