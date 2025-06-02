@@ -52,7 +52,8 @@ export class MessageController {
     const sender = message.from;
     const messageId = message.id;
 
-    const { currentQuestionId } = this.userService.getSession(sender)!;
+    const { currentQuestionId, completed } =
+      this.userService.getSession(sender)!;
 
     this.logger.log(`Received message ${messageId} from ${sender}`);
 
@@ -61,7 +62,7 @@ export class MessageController {
       message,
     );
 
-    if (userResponse) {
+    if (userResponse && !completed) {
       const feedback = this.questionsService.checkAnswer(
         currentQuestionId,
         userResponse,
