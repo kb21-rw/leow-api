@@ -78,7 +78,9 @@ export class QuestionsService {
     return feedback.incorrect;
   }
 
-  getNext(messageSender: string): Question | string {
+  getNext(
+    messageSender: string,
+  ): Question | { question: Question; reviewLabel: string } | string {
     const { currentQuestionId, completed, isReviewMode } =
       this.userService.getSession(messageSender)!;
 
@@ -87,7 +89,7 @@ export class QuestionsService {
     const nextQuestion = this.findById(currentQuestionId);
 
     if (isReviewMode) {
-      nextQuestion.text = `[Gusubiramo] ${nextQuestion.text}`;
+      return { question: nextQuestion, reviewLabel: 'Gusubiramo' };
     }
 
     return nextQuestion;

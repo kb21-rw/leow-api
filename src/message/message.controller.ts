@@ -71,6 +71,14 @@ export class MessageController {
     }
 
     const nextQuestion = this.questionsService.getNext(sender);
+    if (
+      typeof nextQuestion === 'object' &&
+      nextQuestion !== null &&
+      'reviewLabel' in nextQuestion
+    ) {
+      await this.messageService.sendText(sender, nextQuestion.reviewLabel);
+      return this.messageService.sendQuestion(sender, nextQuestion.question);
+    }
     return this.messageService.sendQuestion(sender, nextQuestion);
   }
 }
