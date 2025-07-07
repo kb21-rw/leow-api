@@ -87,4 +87,7 @@ export class UserService {
 
     return null;
   }
+  resetSession(messageSender: string) {
+    this.sessions.delete(messageSender);
+  }
 }

@@ -84,7 +84,10 @@ export class QuestionsService {
     const { currentQuestionId, completed, isReviewMode } =
       this.userService.getSession(messageSender)!;
 
-    if (completed) return DefaultMessages['lesson.end'];
+    if (completed) {
+      this.userService.resetSession(messageSender);
+      return DefaultMessages['lesson.end'];
+    }
 
     const nextQuestion = this.findById(currentQuestionId);
 
